@@ -14,7 +14,6 @@ WorkUnity
 │  └─ theme.js
 ├─ navigation/
 │  ├─ AppNavigator.js
-│  ├─ AuthStack.js
 │  ├─ HomeStack.js
 │  └─ TabNavigator.js
 ├─ screens/

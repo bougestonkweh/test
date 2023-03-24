@@ -1,0 +1,954 @@
+Voici la structure de l'application :
+
+WorkUnity
+├─ assets/
+│  ├─ images/
+│  └─ fonts/
+├─ components/
+│  ├─ ListingCard.js
+│  ├─ ListingDetails.js
+│  ├─ Rating.js
+│  └─ SearchBar.js
+├─ config/
+│  ├─ firebaseConfig.js
+│  └─ theme.js
+├─ navigation/
+│  ├─ AppNavigator.js
+│  ├─ AuthStack.js
+│  ├─ HomeStack.js
+│  └─ TabNavigator.js
+├─ screens/
+│  ├─ HomeScreen.js
+│  ├─ ListingScreen.js
+│  ├─ LoginScreen.js
+│  ├─ MyListingsScreen.js
+│  ├─ ProfileScreen.js
+│  ├─ RegisterScreen.js
+│  └─ SettingsScreen.js
+├─ services/
+│  └─ Firebase.js
+├─ App.js
+└─ package.json
+
+Voici le code "components/ListingCard.js" :
+ 
+import React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+const ListingCard = ({ item, onPress }) => {
+  if (!item) {
+    return null;
+  }
+
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.container}>
+      <Image source={{ uri: item?.image }} style={styles.image} />
+      <View style={styles.detailsContainer}>
+        <Text style={styles.title}>{item?.title}</Text>
+        <Text numberOfLines={1} style={styles.description}>
+          {item?.description}
+        </Text>
+        <View style={styles.priceContainer}>
+          <MaterialCommunityIcons name="currency-usd" size={16} />
+          <Text style={styles.price}>{item?.price}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginBottom: 15,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+  },
+  detailsContainer: {
+    flex: 1,
+    padding: 10,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  description: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 5,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+
+export default ListingCard;
+
+Voici le code "components/ListingDetails.js" :
+
+import React from 'react';
+import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
+
+const ListingDetails = ({ item }) => {
+  return (
+    <ScrollView>
+      <Image source={{ uri: item.image }} style={styles.image} />
+      <View style={styles.detailsContainer}>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.price}>{item.price}€/jour</Text>
+        <Text style={styles.description}>{item.description}</Text>
+        <View style={styles.featuresContainer}>
+          {item.features.map((feature, index) => (
+            <View key={index} style={styles.feature}>
+              <Text style={styles.featureText}>{feature}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  image: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+  },
+  detailsContainer: {
+    padding: 15,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 10,
+  },
+  featuresContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  feature: {
+    backgroundColor: '#f8f8f8',
+    borderRadius: 5,
+    padding: 5,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  featureText: {
+    fontSize: 14,
+  },
+});
+
+export default ListingDetails;
+
+"components/Rating.js" :
+ 
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { AirbnbRating } from 'react-native-ratings';
+
+const Rating = ({ rating, reviewCount, size }) => {
+  return (
+    <View style={styles.container}>
+      <AirbnbRating
+        count={5}
+        defaultRating={rating}
+        isDisabled
+        showRating={false}
+        size={size || 20}
+      />
+      {reviewCount && (
+        <Text style={styles.reviewCount}>({reviewCount} avis)</Text>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  reviewCount: {
+    marginLeft: 5,
+    fontSize: 14,
+    color: '#999',
+  },
+});
+
+export default Rating;
+
+Voici le code de "components/SearchBar.js" :
+
+import React, { useState } from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+
+const SearchBar = ({ onSearch }) => {
+  const [searchText, setSearchText] = useState('');
+
+  const handleSearch = () => {
+    onSearch(searchText);
+  };
+
+  return (
+    <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        placeholder="Rechercher"
+        onChangeText={setSearchText}
+        value={searchText}
+      />
+      <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
+        <MaterialIcons name="search" size={24} color="white" />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    overflow: 'hidden',
+    marginBottom: 15,
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: 10,
+    fontSize: 16,
+  },
+  searchButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+  },
+});
+
+export default SearchBar;
+
+Voici le code de "config/firebaseConfig.js" :
+
+export const firebaseConfig = {
+    apiKey: 'AIzaSyCQGAQaR710VWqsMLEwWN3Lo_JByjLyW7I',
+    authDomain: 'workunity-fd2ac.firebaseapp.com',
+    projectId: 'workunity-fd2ac',
+    storageBucket: 'workunity-fd2ac.appspot.com',
+    messagingSenderId: 'workunity-fd2ac.appspot.com',
+    appId: '1:59729885864:web:f7e251ac7d1333ad99a09d',
+    measurementId: 'G-N1TPQPG2NT',
+  };  
+
+Voici le code de "config/theme.js" :
+
+const theme = {
+    colors: {
+      primary: '#4CAF50',
+      secondary: '#FFC107',
+      accent: '#F44336',
+      background: '#F5F5F5',
+      textPrimary: '#212121',
+      textSecondary: '#757575',
+      textWhite: '#FFFFFF',
+    },
+    fonts: {
+      regular: 'Roboto-Regular',
+      bold: 'Roboto-Bold',
+      italic: 'Roboto-Italic',
+      boldItalic: 'Roboto-BoldItalic',
+    },
+    spacing: {
+      small: 5,
+      medium: 10,
+      large: 15,
+    },
+  };
+  
+  export default theme;
+
+Voici le code de "navigation/AppNavigator.js" :
+
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import TabNavigator from './TabNavigator';
+
+const AppNavigator = () => {
+  return (
+    <NavigationContainer>
+      <TabNavigator />
+    </NavigationContainer>
+  );
+};
+
+export default AppNavigator;
+
+Voici le code de "navigation/HomeStack.js" :
+
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import HomeScreen from '../screens/HomeScreen';
+import ListingScreen from '../screens/ListingScreen';
+
+const Stack = createStackNavigator();
+
+const HomeStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Listing" component={ListingScreen} />
+    </Stack.Navigator>
+  );
+};
+
+export default HomeStack;
+
+Voici le code de "navigation/TabNavigator.js" :
+
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { MaterialIcons } from '@expo/vector-icons';
+import HomeStack from './HomeStack';
+import MyListingsScreen from '../screens/MyListingsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import theme from '../config/theme';
+
+const Tab = createBottomTabNavigator();
+
+const TabNavigator = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = 'home';
+          } else if (route.name === 'MyListings') {
+            iconName = 'format-list-bulleted';
+          } else if (route.name === 'Profile') {
+            iconName = 'account-circle';
+          }
+
+          return <MaterialIcons name={iconName} size={size} color={color} />;
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: theme.colors.primary,
+        inactiveTintColor: theme.colors.textSecondary,
+      }}
+    >
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="MyListings" component={MyListingsScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+};
+
+export default TabNavigator;
+
+Voici le code de "screens/HomeScreen.js" :
+
+import React, { useState } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
+import SearchBar from '../components/SearchBar';
+import ListingCard from '../components/ListingCard';
+import theme from '../config/theme';
+
+// Exemple de données pour les annonces
+const sampleData = [
+  {
+    id: '1',
+    title: 'Espace de travail lumineux',
+    description: 'Un espace de travail idéal pour les créatifs.',
+    image: require('../assets/images/sample_listing_1.jpg'),
+    price: '20€ / heure',
+    rating: 4.5,
+    reviews: 15,
+  },
+  {
+    id: '2',
+    title: 'Studio de musique moderne',
+    description: 'Un studio de musique équipé pour les professionnels et les amateurs.',
+    image: require('../assets/images/sample_listing_2.jpg'),
+    price: '30€ / heure',
+    rating: 4.8,
+    reviews: 42,
+  },
+  // Ajoutez d'autres annonces ici...
+];
+
+const HomeScreen = () => {
+  const [searchText, setSearchText] = useState('');
+
+  const handleSearchTextChange = (text) => {
+    setSearchText(text);
+  };
+
+  return (
+    <View style={styles.container}>
+      <SearchBar onChangeText={handleSearchTextChange} value={searchText} />
+      <FlatList
+        data={sampleData}
+        renderItem={({ item }) => (
+          <ListingCard
+            title={item.title}
+            description={item.description}
+            image={item.image}
+            price={item.price}
+            rating={item.rating}
+            reviews={item.reviews}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: theme.spacing.medium,
+  },
+});
+
+export default HomeScreen;
+
+Voici le code de "screens/ListingScreen.js" :
+
+import React from 'react';
+import { StyleSheet, ScrollView, Image, View, Text } from 'react-native';
+import theme from '../config/theme';
+import ListingDetails from '../components/ListingDetails';
+import Rating from '../components/Rating';
+
+// Exemple de données pour une annonce
+const sampleListing = {
+  title: 'Espace de travail lumineux',
+  description:
+    "Un espace de travail idéal pour les créatifs, situé au cœur de la ville, avec une vue magnifique sur le parc. L'espace est entièrement équipé avec des bureaux, des chaises, un accès Internet rapide et une cuisine.",
+  image: require('../assets/images/sample_listing_1.jpg'),
+  price: '20€ / heure',
+  rating: 4.5,
+  reviews: 15,
+};
+
+const ListingScreen = () => {
+  const { title, description, image, price, rating, reviews } = sampleListing;
+
+  return (
+    <ScrollView style={styles.container}>
+      <Image source={image} style={styles.image} />
+      <View style={styles.detailsContainer}>
+        <ListingDetails title={title} description={description} price={price} />
+        <Rating rating={rating} reviews={reviews} />
+      </View>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  image: {
+    width: '100%',
+    height: 300,
+  },
+  detailsContainer: {
+    padding: theme.spacing.medium,
+  },
+});
+
+export default ListingScreen;
+
+Voici le code de "screens/LoginScreen.js" :
+
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import theme from '../config/theme';
+
+const LoginScreen = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+    } catch (error) {
+      console.error('Error signing in', error.message);
+    }
+  };  
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Connexion</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        keyboardType="email-address"
+        onChangeText={setEmail}
+        value={email}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Mot de passe"
+        secureTextEntry
+        onChangeText={setPassword}
+        value={password}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Se connecter</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.large,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    borderColor: theme.colors.textSecondary,
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: theme.spacing.small,
+    marginBottom: theme.spacing.medium,
+  },
+  button: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: 4,
+    paddingHorizontal: theme.spacing.large,
+    paddingVertical: theme.spacing.small,
+  },
+  buttonText: {
+    color: theme.colors.textOnPrimary,
+    fontWeight: 'bold',
+  },
+});
+
+export default LoginScreen;
+
+Voici le code de "screens/MyListingsScreen.js" :
+
+import React, { useState } from 'react';
+import { StyleSheet, FlatList, View, Text } from 'react-native';
+import theme from '../config/theme';
+import ListingCard from '../components/ListingCard';
+
+// Exemple de données pour les annonces de l'utilisateur
+const myListings = [
+  {
+    id: '1',
+    title: 'Espace de travail lumineux',
+    image: require('../assets/images/sample_listing_1.jpg'),
+    price: '20€ / heure',
+  },
+  {
+    id: '2',
+    title: 'Studio de musique confortable',
+    image: require('../assets/images/sample_listing_2.jpg'),
+    price: '25€ / heure',
+  },
+];
+
+const MyListingsScreen = () => {
+  const renderItem = ({ item }) => (
+    <ListingCard title={item.title} image={item.image} price={item.price} />
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Mes annonces</Text>
+      <FlatList
+        data={myListings}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.list}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary,
+    padding: theme.spacing.medium,
+  },
+  list: {
+    paddingHorizontal: theme.spacing.medium,
+  },
+});
+
+export default MyListingsScreen;
+
+Voici le code de "screens/ProfileScreen.js" :
+
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import theme from '../config/theme';
+import { auth, createUserProfileDocument } from '../services/Firebase';
+
+const ProfileScreen = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (auth.currentUser) {
+      setName(auth.currentUser.displayName);
+      setEmail(auth.currentUser.email);
+    }
+  }, []);
+
+  const handleSave = async () => {
+    if (!auth.currentUser) return;
+
+    try {
+      await auth.currentUser.updateProfile({
+        displayName: name,
+      });
+      await createUserProfileDocument(auth.currentUser, { displayName: name });
+    } catch (error) {
+      console.error('Error updating profile', error.message);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Profil</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nom"
+        onChangeText={setName}
+        value={name}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        keyboardType="email-address"
+        onChangeText={setEmail}
+        value={email}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleSave}>
+        <Text style={styles.buttonText}>Enregistrer les modifications</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.large,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    borderColor: theme.colors.textSecondary,
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: theme.spacing.small,
+    marginBottom: theme.spacing.medium,
+  },
+  button: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: 4,
+    paddingHorizontal: theme.spacing.large,
+    paddingVertical: theme.spacing.small,
+  },
+  buttonText: {
+    color: theme.colors.textOnPrimary,
+    fontWeight: 'bold',
+  },
+});
+
+export default ProfileScreen;
+
+Voici le code de "screens/RegisterScreen.js" :
+
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import theme from '../config/theme';
+
+const RegisterScreen = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      alert("Les mots de passe ne correspondent pas.");
+      return;
+    }
+  
+    try {
+      const { user } = await auth.createUserWithEmailAndPassword(email, password);
+      await createUserProfileDocument(user, { displayName: name });
+    } catch (error) {
+      console.error('Error registering user', error.message);
+    }
+  };  
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Inscription</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nom"
+        onChangeText={setName}
+        value={name}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        keyboardType="email-address"
+        onChangeText={setEmail}
+        value={email}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Mot de passe"
+        secureTextEntry
+        onChangeText={setPassword}
+        value={password}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirmer le mot de passe"
+        secureTextEntry
+        onChangeText={setConfirmPassword}
+        value={confirmPassword}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <Text style={styles.buttonText}>S'inscrire</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.large,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    borderColor: theme.colors.textSecondary,
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: theme.spacing.small,
+    marginBottom: theme.spacing.medium,
+  },
+  button: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: 4,
+    paddingHorizontal: theme.spacing.large,
+    paddingVertical: theme.spacing.small,
+  },
+  buttonText: {
+    color: theme.colors.textOnPrimary,
+    fontWeight: 'bold',
+  },
+});
+
+export default RegisterScreen;
+
+Voici le code de "screens/SettingsScreen.js" :
+
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import theme from '../config/theme';
+
+const SettingsScreen = () => {
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+    } catch (error) {
+      console.error('Error signing out', error.message);
+    }
+  };
+  
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Paramètres</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogout}>
+        <Text style={styles.buttonText}>Se déconnecter</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.large,
+  },
+  button: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: 4,
+    paddingHorizontal: theme.spacing.large,
+    paddingVertical: theme.spacing.small,
+  },
+  buttonText: {
+    color: theme.colors.textOnPrimary,
+    fontWeight: 'bold',
+  },
+});
+
+export default SettingsScreen;
+
+Voici le code de "services/Firebase.js" :
+
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
+import 'firebase/compat/storage';
+import { firebaseConfig } from "../config/firebaseConfig";
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+} else {
+  firebase.app();
+}
+
+export const auth = firebase.auth();
+export const firestore = firebase.firestore();
+export const storage = firebase.storage();
+
+// Exportez des fonctions utiles pour interagir avec Firebase
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  if (!userAuth) return;
+
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
+  const snapshot = await userRef.get();
+
+  if (!snapshot.exists) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createdAt,
+        ...additionalData,
+      });
+    } catch (error) {
+      console.error('Error creating user', error.message);
+    }
+  }
+
+  return userRef;
+};
+
+Voici le code de "App.js" :
+
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
+
+import AppNavigator from './navigation/AppNavigator';
+import { auth } from './services/Firebase';
+
+const App = () => {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      <AppNavigator isSignedIn={isSignedIn} />
+    </View>
+  );
+};
+
+export default App;
